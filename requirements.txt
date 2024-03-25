@@ -5,6 +5,9 @@ matplotlib
 scikit-learn
 catboost
 xgboost
-Flask
+uvicorn
+fastapi
+streamlit
+pydantic
 
--e .
+# -e .

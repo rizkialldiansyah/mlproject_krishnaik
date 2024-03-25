@@ -1,15 +1,31 @@
 import logging
-import os
+import sys
 from datetime import datetime
 
-LOG_FILE=f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
-logs_path=os.path.join(os.getcwd(),"logs",LOG_FILE)
-os.makedirs(logs_path,exist_ok=True)
+# get logger
+logger = logging.getLogger()
 
-LOG_FILE_PATH=os.path.join(logs_path,LOG_FILE)
-
-logging.basicConfig(
-    filename=LOG_FILE_PATH,
-    format="[ %(asctime)s ] %(lineno)d %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
+# create formatter
+formatter = logging.Formatter(
+    fmt="%(asctime)s - %(levelname)s - %(message)s"
 )
+
+# create handler
+stream_handler = logging.StreamHandler(sys.stderr)  # Menggunakan sys.stderr untuk logging ke dalam kontainer Docker
+
+# Menambahkan penanganan kesalahan saat membuat file handler
+try:
+    file_handler = logging.FileHandler('/app/app.log')  # Menyimpan file log di dalam direktori /app di dalam kontainer
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+except IOError as e:
+    logger.error(f"Failed to create file handler: {e}")
+
+# set formatter for stream handler
+stream_handler.setFormatter(formatter)
+
+# add handler to the logger
+logger.addHandler(stream_handler)
+
+# set log-level
+logger.setLevel(logging.INFO)
